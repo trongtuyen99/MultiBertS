@@ -7,6 +7,19 @@ from torch.nn.init import xavier_uniform_
 from models.encoder import TransformerInterEncoder, Classifier, RNNEncoder
 from models.optimizers import Optimizer
 
+bert_config_uncased_base = {
+  "attention_probs_dropout_prob": 0.1,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.1,
+  "hidden_size": 768,
+  "initializer_range": 0.02,
+  "intermediate_size": 3072,
+  "max_position_embeddings": 512,
+  "num_attention_heads": 12,
+  "num_hidden_layers": 12,
+  "type_vocab_size": 2,
+  "vocab_size": 30522
+}
 
 def build_optim(args, model, checkpoint):
     """ Build optimizer """
@@ -48,8 +61,8 @@ class Bert(nn.Module):
         else:
             self.model = BertModel(bert_config)
 
-    def forward(self, x, segs, mask):
-        encoded_layers, _ = self.model(x, segs, attention_mask =mask)
+    def forward(self, x, segs, mask, p_segs=None):
+        encoded_layers, _ = self.model(x, segs, attention_mask=mask, p_segs=p_segs)
         top_vec = encoded_layers[-1]
         return top_vec
 
@@ -60,6 +73,8 @@ class Summarizer(nn.Module):
         super(Summarizer, self).__init__()
         self.args = args
         self.device = device
+        if not load_pretrained_bert and bert_config is None:
+            bert_config = BertConfig.from_dict(bert_config_uncased_base)
         self.bert = Bert(args.temp_dir, load_pretrained_bert, bert_config)
         if (args.encoder == 'classifier'):
             self.encoder = Classifier(self.bert.model.config.hidden_size)
@@ -88,9 +103,9 @@ class Summarizer(nn.Module):
     def load_cp(self, pt):
         self.load_state_dict(pt['model'], strict=True)
 
-    def forward(self, x, segs, clss, mask, mask_cls, sentence_range=None):
+    def forward(self, x, segs, clss, mask, mask_cls, sentence_range=None, p_segs=None):
 
-        top_vec = self.bert(x, segs, mask)
+        top_vec = self.bert(x, segs, mask, p_segs)
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
         sents_vec = sents_vec * mask_cls[:, :, None].float()
         sent_scores = self.encoder(sents_vec, mask_cls).squeeze(-1)

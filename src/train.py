@@ -253,7 +253,7 @@ def train(args, device_id):
         return data_loader.Dataloader(args, load_dataset(args, 'train', shuffle=True), args.batch_size, device,
                                                  shuffle=True, is_test=False)
 
-    model = Summarizer(args, device, load_pretrained_bert=True)
+    model = Summarizer(args, device, load_pretrained_bert=False)  # True
     if args.pretrained_from != '':
         print(f'Loading pretrained bertsum extract from {os.path.abspath(args.pretrained_from)}')
         print(model.load_state_dict(torch.load(args.pretrained_from)))

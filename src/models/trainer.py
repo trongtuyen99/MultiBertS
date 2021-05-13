@@ -221,8 +221,8 @@ class Trainer(object):
                 clss = batch.clss
                 mask = batch.mask
                 mask_cls = batch.mask_cls
-
-                sent_scores, mask = self.model(src, segs, clss, mask, mask_cls)
+                p_segs = batch.p_segs  # paragraph segmentation
+                sent_scores, mask = self.model(src, segs, clss, mask, mask_cls, p_segs=p_segs)
 
 
                 loss = self.loss(sent_scores, labels.float())
@@ -271,7 +271,7 @@ class Trainer(object):
                         clss = batch.clss
                         mask = batch.mask
                         mask_cls = batch.mask_cls
-
+                        p_segs = batch.p_segs  # paragraph segmentation
 
                         gold = []
                         pred = []
@@ -282,7 +282,7 @@ class Trainer(object):
                             selected_ids = [[j for j in range(batch.clss.size(1)) if labels[i][j] == 1] for i in
                                             range(batch.batch_size)]
                         else:
-                            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls)
+                            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls, p_segs=p_segs)
 
                             loss = self.loss(sent_scores, labels.float())
                             loss = (loss * mask.float()).sum()
@@ -345,8 +345,10 @@ class Trainer(object):
             clss = batch.clss
             mask = batch.mask
             mask_cls = batch.mask_cls
-
-            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls)
+            
+            # paragraph segmentation
+            p_segs = batch.p_segs  # paragraph segmentation
+            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls, p_segs=p_segs)
 
             loss = self.loss(sent_scores, labels.float())
             loss = (loss*mask.float()).sum()

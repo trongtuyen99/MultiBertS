@@ -19,16 +19,20 @@ class Batch(object):
         """Create a Batch from a list of examples."""
         if data is not None:
             self.batch_size = len(data)
+            # print('length of data: ')
+            # print(len(data[0]))
             pre_src = [x[0] for x in data]
             pre_labels = [x[1] for x in data]
             pre_segs = [x[2] for x in data]
             pre_clss = [x[3] for x in data]
+            pragraph_segs = [x[4] for x in data]  # paragraph segmentation
 
             src = torch.tensor(self._pad(pre_src, 0))
 
             labels = torch.tensor(self._pad(pre_labels, 0))
             segs = torch.tensor(self._pad(pre_segs, 0))
             mask = ~(src == 0)
+            p_segs = torch.tensor(self._pad(pragraph_segs, 0))  # paragraph segmentation
 
             clss = torch.tensor(self._pad(pre_clss, -1))
             mask_cls = ~(clss == -1)
@@ -40,7 +44,7 @@ class Batch(object):
             setattr(self, 'labels', labels.to(device))
             setattr(self, 'segs', segs.to(device))
             setattr(self, 'mask', mask.to(device))
-
+            setattr(self, 'p_segs', p_segs.to(device))  # paragraph segmentation
             if (is_test):
                 src_str = [x[-2] for x in data]
                 setattr(self, 'src_str', src_str)
@@ -184,11 +188,13 @@ class DataIterator(object):
         clss = ex['clss']
         src_txt = ex['src_txt']
         tgt_txt = ex['tgt_txt']
-
+        # print('preprocess dataloader: ')
+        # print(ex.keys())
+        p_seg = ex['p_seg']
         if(is_test):
-            return src,labels,segs, clss, src_txt, tgt_txt
+            return src, labels, segs, clss, p_seg, src_txt, tgt_txt
         else:
-            return src,labels,segs, clss
+            return src, labels, segs, clss, p_seg
 
     def batch_buffer(self, data, batch_size):
         minibatch, size_so_far = [], 0
