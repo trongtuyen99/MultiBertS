@@ -11,13 +11,14 @@ from os.path import join as pjoin
 
 import torch
 from multiprocess import Pool
-from pytorch_pretrained_bert import BertTokenizer
+from tokenization import BertTokenizer
 
 from others.logging import logger
 from others.utils import clean
 from prepro.utils import _get_word_ngrams
 
-
+from copy import deepcopy
+from tqdm import tqdm
 def load_json(p, lower):
     source = []
     tgt = []
@@ -149,7 +150,7 @@ class BertData():
         self.cls_vid = self.tokenizer.vocab['[CLS]']
         self.pad_vid = self.tokenizer.vocab['[PAD]']
 
-    def preprocess(self, src, tgt, oracle_ids):
+    def preprocess(self, src, tgt=[], oracle_ids=[]):
 
         if (len(src) == 0):
             return None
@@ -324,3 +325,41 @@ def _format_to_lines(params):
     print(f)
     source, tgt = load_json(f, args.lower)
     return {'src': source, 'tgt': tgt}
+
+
+def json2bert_single(json_file):
+    """
+    Convert từ multidoc + label ban đầu - dataset gốc => single doc + label tương ứng
+    """
+    with open(json_file, 'r') as file:
+        json_data = json.load(file)
+    
+    sigle_doc_format = []
+    for i, data in tqdm(enumerate(json_data), total=len(json_data)):
+        idx_start = 0
+        total_doc = len(data['src_doc_sent_list'])
+        for j, parag in enumerate(data['src_doc_sent_list']):
+            # if len(parag) < 3:  # Chỉ lấy đoạn có số câu >2
+            #     continue
+            sent_idx_extract = []
+            # origin_sent_idx_extract = []
+            single_doc = {}
+            n = len(parag)
+            for idx in data['idx_extract']:
+                if idx_start <= idx < idx_start+n:
+                    sent_idx_extract.append(idx-idx_start)
+                    # origin_sent_idx_extract.append(idx)
+            
+            single_doc['src'] = deepcopy(parag)
+            single_doc['idx_start'] = idx_start
+            single_doc['idx_extract'] = sorted(deepcopy(sent_idx_extract))
+            # single_doc['origin_idx_extract'] = sorted(deepcopy(origin_sent_idx_extract))
+            single_doc['id'] = f"{i}_{j}"
+            single_doc['n_sent'] = n
+            single_doc['total_doc'] = total_doc
+            single_doc['multi_idx_extract'] = sorted(deepcopy(data['idx_extract']))
+            sigle_doc_format.append(deepcopy(single_doc))
+
+            idx_start += n
+        # break
+    return sigle_doc_format
