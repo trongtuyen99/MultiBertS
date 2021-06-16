@@ -86,7 +86,10 @@ class Summarizer(nn.Module):
 
         self.to(device)
     def load_cp(self, pt):
-        self.load_state_dict(pt['model'], strict=True)
+        try:
+            self.load_state_dict(pt['model'], strict=True)
+        except:
+            self.load_state_dict(pt, strict=True)
 
     def forward(self, x, segs, clss, mask, mask_cls, sentence_range=None):
 
