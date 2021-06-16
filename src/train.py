@@ -261,7 +261,10 @@ def train(args, device_id):
         logger.info('Loading checkpoint from %s' % args.train_from)
         checkpoint = torch.load(args.train_from,
                                 map_location=lambda storage, loc: storage)
-        opt = vars(checkpoint['opt'])
+        try:
+            opt = vars(checkpoint['opt'])
+        except:
+            opt = dict()
         for k in opt.keys():
             if (k in model_flags):
                 setattr(args, k, opt[k])
