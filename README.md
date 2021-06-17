@@ -1,6 +1,8 @@
 # MultiBertS
 Phương pháp phân cấp cho bài toán tóm tắt đa văn bản, thử nghiệm trên bộ dữ liệu Multi News
+
 Kết quả đạt SOTA trên bộ dữ liệu Multi News
+
 Cải tiến so với các nghiên cứu hiện có:
   - Cải thiện vấn đề ít dữ liệu bằng cách sử dụng thêm dữ liệu bài toán tóm tắt đơn văn bản
   - Tối đa thông tin đầu vào của mô hình bằng cách thiết kế phương pháp phân cấp
@@ -32,12 +34,12 @@ Trong đó, Summarization Layer có thể là:
 3. Transformer encoder: giống với BiLSTM, dùng Attention để Encode thay vì LSTM
 
 ## Quá trình thử nghiệm
-1. Xử lý dữ liệu, chi tiết trong file [Data_processing.ipynb](./src/notebook/Data_processing.ipynb):
+1. Xử lý dữ liệu, chi tiết trong file [Data_processing](./src/notebook/Data_processing.ipynb):
   - Cắt ngắn văn bản (lấy 512 token đầu tiên)
   - Tạo dữ liệu trích rút từ dữ liệu tóm lược
   - Xử lý tổng hợp câu từ các đơn văn bản
   - ...
-3. Training, evaluate mô hình, chi tiết trong file [MultiBertS_training_evaluation_final_clean.ipynb](./src/notebook/MultiBertS_training_evaluation_final_clean.ipynb):
+3. Training, evaluate mô hình, chi tiết trong file [MultiBertS_training_evaluation_final_clean](./src/notebook/MultiBertS_training_evaluation_final_clean.ipynb):
   - Training BERT + Classifier (CNN/Daily Mails + single|multi Multi News)
   - Training BERT + BiLSTM (CNN/Daily Mails + single|multi Multi News)
   - Training BERT + Transformer (CNN/Daily Mails + single|multi Multi News)
