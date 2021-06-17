@@ -34,6 +34,9 @@ Trong đó, Summarization Layer có thể là:
 3. Transformer encoder: giống với BiLSTM, dùng Attention để Encode thay vì LSTM
 
 ## Quá trình thử nghiệm
+**Các phần xử lý download/copy code trong các notebook có thể thay thế trực tiếp bằng thư mục code hiện tại**
+**File notebook chạy trên google colab, thực hiện chỉnh sửa đường dẫn nếu cần**
+**Checkout branch paragraph_embeddings để thử nghiệm phần thêm paragraph embeddings cho mô hình**
 1. Xử lý dữ liệu, chi tiết trong file [Data_processing](./src/notebook/Data_processing.ipynb):
   - Cắt ngắn văn bản (lấy 512 token đầu tiên)
   - Tạo dữ liệu trích rút từ dữ liệu tóm lược
@@ -44,3 +47,5 @@ Trong đó, Summarization Layer có thể là:
   - Training BERT + BiLSTM (CNN/Daily Mails + single|multi Multi News)
   - Training BERT + Transformer (CNN/Daily Mails + single|multi Multi News)
   - Evaluate valid, test, view tensorboard logs...
+ 
+ *Chú ý: quá trình training- xử lý dữ liệu diễn ra đan xen nhau, cần lưu lại kết quả của mô hình training cũng như dữ liệu đã qua xử lý để thuận tiện.*
